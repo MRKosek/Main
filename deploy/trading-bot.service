@@ -1,0 +1,16 @@
+# Alternative to Docker: systemd. Copy to /etc/systemd/system/ and adjust User/paths.
+[Unit]
+Description=Trading bot (paper)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=bot
+WorkingDirectory=/home/bot/trading-bot
+ExecStart=/home/bot/trading-bot/.venv/bin/python -m bot.runner
+Restart=always
+RestartSec=30
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

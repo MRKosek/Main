@@ -1,0 +1,13 @@
+[Unit]
+Description=Trading bot dashboard
+After=network-online.target
+
+[Service]
+User=bot
+WorkingDirectory=/home/bot/trading-bot
+ExecStart=/home/bot/trading-bot/.venv/bin/python -m dashboard.app
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

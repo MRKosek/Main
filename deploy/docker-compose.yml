@@ -1,0 +1,28 @@
+# Run from the repo root:  docker compose -f deploy/docker-compose.yml up -d --build
+services:
+  bot:
+    build: { context: .., dockerfile: deploy/Dockerfile }
+    command: python -m bot.runner
+    env_file: ../.env
+    volumes:
+      - ../data:/app/data
+      - ../reports:/app/reports
+      - ../strategy.md:/app/strategy.md   # writable so `bot.backtest --write` can update it
+    restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "10m", max-file: "5" } }
+
+  dashboard:
+    build: { context: .., dockerfile: deploy/Dockerfile }
+    command: python -m dashboard.app
+    env_file: ../.env
+    environment:
+      DASHBOARD_HOST: 0.0.0.0
+    volumes:
+      - ../data:/app/data
+      - ../reports:/app/reports:ro
+      - ../strategy.md:/app/strategy.md:ro
+    # Bound to the VPS's loopback only. Reach it through an SSH tunnel, never the open internet.
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    depends_on: [bot]
